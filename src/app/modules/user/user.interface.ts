@@ -1,8 +1,7 @@
 export enum Role {
-  SENDER = "SENDER",
   ADMIN = "ADMIN",
+  SENDER = "SENDER",
   RECEIVER = "RECEIVER",
-  USER = "USER",
 }
 
 export enum IsBlocked {
@@ -13,7 +12,7 @@ export enum IsBlocked {
 export interface IUser {
   name: string;
   email: string;
-  password?: string;
+  password: string;
   isBlocked?: IsBlocked;
   role: Role;
 }
