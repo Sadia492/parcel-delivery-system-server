@@ -11,6 +11,7 @@ interface EnvConfig {
   JWT_ACCESS_EXPIRES: string;
   JWT_REFRESH_EXPIRES: string;
   PASSWORD_SALT_ROUND: number;
+  FRONTEND_URL: string;
 }
 
 const loadEnvVariables = (): EnvConfig => {
@@ -23,6 +24,7 @@ const loadEnvVariables = (): EnvConfig => {
     "JWT_ACCESS_EXPIRES",
     "JWT_REFRESH_EXPIRES",
     "PASSWORD_SALT_ROUND",
+    "FRONTEND_URL",
   ];
   requiredEnvVariables.forEach((key) => {
     if (!process.env[key]) {
@@ -38,6 +40,7 @@ const loadEnvVariables = (): EnvConfig => {
     JWT_ACCESS_EXPIRES: process.env.JWT_ACCESS_EXPIRES!,
     JWT_REFRESH_EXPIRES: process.env.JWT_REFRESH_EXPIRES!,
     PASSWORD_SALT_ROUND: Number(process.env.PASSWORD_SALT_ROUND)!,
+    FRONTEND_URL: process.env.FRONTEND_URL!,
   };
 };
 

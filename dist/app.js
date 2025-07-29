@@ -1,27 +1,26 @@
-import express, { Request, Response } from "express";
-import routes from "./routes"; // Your main router (import all modules there)
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import { globalErrorHandler } from "./middleware/globalErrorHandler";
-import { notFoundRoute } from "./middleware/notFoundRoute";
-import { envVars } from "./app/config/env";
-
-const app = express();
-
-app.use(express.json());
-app.use(
-  cors({
-    origin: envVars.FRONTEND_URL,
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const routes_1 = __importDefault(require("./routes")); // Your main router (import all modules there)
+const cors_1 = __importDefault(require("cors"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const globalErrorHandler_1 = require("./middleware/globalErrorHandler");
+const notFoundRoute_1 = require("./middleware/notFoundRoute");
+const env_1 = require("./app/config/env");
+const app = (0, express_1.default)();
+app.use(express_1.default.json());
+app.use((0, cors_1.default)({
+    origin: env_1.envVars.FRONTEND_URL,
     credentials: true,
-  })
-);
-app.use(cookieParser());
-
-app.use("/api", routes);
-
+}));
+app.use((0, cookie_parser_1.default)());
+app.use("/api", routes_1.default);
 // Landing page with your Parcel Management API info and routes
-app.get("/", (req: Request, res: Response) => {
-  res.send(`
+app.get("/", (req, res) => {
+    res.send(`
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -205,8 +204,6 @@ app.get("/", (req: Request, res: Response) => {
     </html>
   `);
 });
-
-app.use(globalErrorHandler);
-app.use(notFoundRoute);
-
-export default app;
+app.use(globalErrorHandler_1.globalErrorHandler);
+app.use(notFoundRoute_1.notFoundRoute);
+exports.default = app;

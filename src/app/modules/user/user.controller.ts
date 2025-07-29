@@ -57,12 +57,13 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   res.cookie("accessToken", data.accessToken, {
     secure: envVars.NODE_ENV !== "development",
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "none",
   });
 
   res.cookie("refreshToken", data.refreshToken, {
     secure: envVars.NODE_ENV !== "development",
     httpOnly: true,
+    sameSite: "none",
   });
 
   sendResponse(res, {
