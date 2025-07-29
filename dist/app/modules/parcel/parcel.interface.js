@@ -9,6 +9,8 @@ var ParcelStatus;
     ParcelStatus["IN_TRANSIT"] = "IN_TRANSIT";
     ParcelStatus["DELIVERED"] = "DELIVERED";
     ParcelStatus["CANCELED"] = "CANCELED";
-    ParcelStatus["RETURNED"] = "RETURNED";
-    ParcelStatus["HELD"] = "HELD";
+    ParcelStatus["BLOCKED"] = "BLOCKED";
+    ParcelStatus["UNBLOCKED"] = "UNBLOCKED";
+    // RETURNED = "RETURNED",
+    // HELD = "HELD",
 })(ParcelStatus || (exports.ParcelStatus = ParcelStatus = {}));

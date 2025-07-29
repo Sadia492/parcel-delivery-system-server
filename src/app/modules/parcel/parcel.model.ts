@@ -51,7 +51,6 @@ const parcelSchema = new mongoose.Schema(
 );
 
 // Indexes for optimization
-parcelSchema.index({ trackingId: 1 });
 parcelSchema.index({ senderId: 1, status: 1 });
 parcelSchema.index({ receiverId: 1, status: 1 });
 

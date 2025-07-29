@@ -143,7 +143,7 @@ app.get("/", (req, res) => {
               <span class="badge">POST /api/users/refresh-token</span>
             </div>
             <div class="route">
-              <span>Get Users List</span>
+              <span>Get Users List (Admin)</span>
               <span class="badge">GET /api/users/</span>
             </div>
             <div class="route">
@@ -151,11 +151,11 @@ app.get("/", (req, res) => {
               <span class="badge">GET /api/users/:id</span>
             </div>
             <div class="route">
-              <span>Block User</span>
+              <span>Block User (Admin)</span>
               <span class="badge">PATCH /api/users/block/:id</span>
             </div>
             <div class="route">
-              <span>Unblock User</span>
+              <span>Unblock User(Admin)</span>
               <span class="badge">PATCH /api/users/unblock/:id</span>
             </div>
           </div>
@@ -171,19 +171,27 @@ app.get("/", (req, res) => {
               <span class="badge">GET /api/parcels/me</span>
             </div>
             <div class="route">
-              <span>Update Parcel Status</span>
+              <span>Get Incoming Parcels (Receiver)</span>
+              <span class="badge">GET /api/parcels/incoming</span>
+            </div>
+            <div class="route">
+              <span>Get Delivery History (Receiver)</span>
+              <span class="badge">GET /api/parcels/history</span>
+            </div>
+            <div class="route">
+              <span>Update Parcel Status (Admin)</span>
               <span class="badge">PATCH /api/parcels/status/:parcelId</span>
             </div>
             <div class="route">
-              <span>Cancel Parcel</span>
+              <span>Cancel Parcel (Sender)</span>
               <span class="badge">PATCH /api/parcels/cancel/:parcelId</span>
             </div>
             <div class="route">
-              <span>Confirm Delivery</span>
+              <span>Confirm Delivery (Receiver)</span>
               <span class="badge">PATCH /api/parcels/confirm-delivery/:parcelId</span>
             </div>
             <div class="route">
-              <span>Block/Unblock Parcel</span>
+              <span>Block/Unblock Parcel (Admin)</span>
               <span class="badge">PATCH /api/parcels/block/:parcelId</span>
             </div>
           </div>

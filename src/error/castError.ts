@@ -1,19 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import mongoose from "mongoose";
-import { TErrorResponse } from "../interfaces/error";
-import { envVars } from "../app/config/env";
+import { TGenericErrorResponse } from "../interfaces/error";
 
-export const handleCastValidationError = (
-  error: mongoose.Error.CastError
-): TErrorResponse => {
-  const statusCode = 400;
-  const message = "Invalid ID";
-  const errorMessage = `${error.value} is not a valid ID!`;
-
+export const handleCastError = (
+  err: mongoose.Error.CastError
+): TGenericErrorResponse => {
   return {
-    statusCode,
-    message,
-    errorMessage,
-    errorDetails: error,
-    stack: envVars.NODE_ENV === "development" ? error.stack : undefined,
+    statusCode: 400,
+    message: "Invalid MongoDB ObjectID. Please provide a valid id",
   };
 };

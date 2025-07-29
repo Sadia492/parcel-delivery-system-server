@@ -7,7 +7,7 @@ const authRouter = Router();
 
 authRouter.post(
   "/change-password",
-  auth(Object.values(Role)),
+  auth([Role.SENDER, Role.RECEIVER, Role.ADMIN]),
   authController.changePassword
 );
 

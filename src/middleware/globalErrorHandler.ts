@@ -1,50 +1,69 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-unused-vars */
-import { ErrorRequestHandler } from "express";
-import { handleCastValidationError } from "../error/castError";
-import { handleDuplicateValidationError } from "../error/duplicateError";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextFunction, Request, Response } from "express";
+// import { handleCastError } from "../helpers/handleCastError";
+// // import { handlerDuplicateError } from "../helpers/handleDuplicateError";
+// import { handlerValidationError } from "../helpers/handlerValidationError";
+// import { handlerZodError } from "../helpers/handlerZodError";
+// import { TErrorSources } from "../interfaces/error.types";
+import AppError from "../error/AppError";
 import { envVars } from "../app/config/env";
+import { TErrorSources } from "../interfaces/error";
+import { handlerDuplicateError } from "../error/duplicateError";
+import { handleCastError } from "../error/castError";
+import { handlerZodError } from "../error/zodError";
+import { handlerValidationError } from "../error/validationError";
 
-export const globalErrorHandler: ErrorRequestHandler = (
-  error,
-  req,
-  res,
-  next
+export const globalErrorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-  // Handle Cast Validation Error
-  if (error?.name === "CastError") {
-    const result = handleCastValidationError(error);
-    return res.status(result.statusCode).json({
-      success: false,
-      message: result.message,
-      errorMessage: result.errorMessage,
-      errorDetails: result.errorDetails,
-      stack: envVars.NODE_ENV === "development" ? result.stack : undefined,
-    });
+  if (envVars.NODE_ENV === "development") {
+    console.log(err);
   }
 
-  // Handle Duplicate Validation Error
-  if (error.code === 11000) {
-    const result = handleDuplicateValidationError(error);
+  let errorSources: TErrorSources[] = [];
+  let statusCode = 500;
+  let message = "Something Went Wrong!!";
 
-    return res.status(result.statusCode).json({
-      success: false,
-      message: result.message,
-      errorMessage: result.errorMessage,
-      errorDetails: result.errorDetails,
-      stack: envVars.NODE_ENV === "development" ? result.stack : undefined,
-    });
+  //Duplicate error
+  if (err.code === 11000) {
+    const simplifiedError = handlerDuplicateError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+  }
+  // Object ID error / Cast Error
+  else if (err.name === "CastError") {
+    const simplifiedError = handleCastError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+  } else if (err.name === "ZodError") {
+    const simplifiedError = handlerZodError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources as TErrorSources[];
+  }
+  //Mongoose Validation Error
+  else if (err.name === "ValidationError") {
+    const simplifiedError = handlerValidationError(err);
+    statusCode = simplifiedError.statusCode;
+    errorSources = simplifiedError.errorSources as TErrorSources[];
+    message = simplifiedError.message;
+  } else if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (err instanceof Error) {
+    statusCode = 500;
+    message = err.message;
   }
 
-  // Handle other errors
-  const statusCode = error.statusCode || 500;
-  const message = error.message || "Something went wrong!";
-
-  return res.status(statusCode).json({
+  res.status(statusCode).json({
     success: false,
     message,
-    errorMessage: error.message,
-    errorDetails: error,
-    stack: envVars.NODE_ENV === "development" ? error.stack : undefined,
+    errorSources,
+    err: envVars.NODE_ENV === "development" ? err : null,
+    stack: envVars.NODE_ENV === "development" ? err.stack : null,
   });
 };

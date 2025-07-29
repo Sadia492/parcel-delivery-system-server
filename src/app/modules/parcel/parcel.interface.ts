@@ -7,8 +7,10 @@ export enum ParcelStatus {
   IN_TRANSIT = "IN_TRANSIT",
   DELIVERED = "DELIVERED",
   CANCELED = "CANCELED",
-  RETURNED = "RETURNED",
-  HELD = "HELD",
+  BLOCKED = "BLOCKED",
+  UNBLOCKED = "UNBLOCKED",
+  // RETURNED = "RETURNED",
+  // HELD = "HELD",
 }
 
 export interface IStatusLog {

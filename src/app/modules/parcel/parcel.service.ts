@@ -3,6 +3,8 @@ import { ParcelStatus, IParcel, IStatusLog } from "./parcel.interface";
 import { Types } from "mongoose";
 import httpStatus from "http-status";
 import AppError from "../../../error/AppError";
+import User from "../user/user.model";
+import { IsBlocked, Role } from "../user/user.interface";
 
 // Payload interface for parcel creation
 interface ICreateParcelPayload {
@@ -25,8 +27,33 @@ const generateTrackingId = (): string => {
 const createParcel = async (
   payload: ICreateParcelPayload
 ): Promise<IParcel> => {
+  // Validate sender exists and role
+  const sender = await User.findById(payload.senderId).select("role");
+  if (!sender) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Sender user does not exist");
+  }
+  if (sender.role !== Role.SENDER) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "User is not authorized as sender"
+    );
+  }
+
+  // Validate receiver exists and role
+  const receiver = await User.findById(payload.receiverId).select("role");
+  if (!receiver) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Receiver user does not exist");
+  }
+  if (receiver.role !== Role.RECEIVER) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "User is not authorized as receiver"
+    );
+  }
+
+  // Now proceed with creation
   const trackingId = generateTrackingId();
-  const fee = payload.weight * 5; // Example: $5 per kg
+  const fee = payload.weight * 5; // Example calculation
 
   const statusLog: IStatusLog = {
     status: ParcelStatus.REQUESTED,
@@ -44,12 +71,11 @@ const createParcel = async (
     isCanceled: false,
     createdAt: new Date(),
   });
-  // Populate again if necessary before return
+
   await parcel.populate("senderId", "name email");
   await parcel.populate("receiverId", "name email");
 
-  const parcelObj = parcel.toObject({ depopulate: true }) as unknown as IParcel;
-  return parcelObj;
+  return parcel.toObject({ depopulate: true }) as unknown as IParcel;
 };
 
 // Update parcel status (with validation)
@@ -64,14 +90,16 @@ const updateStatus = async (
 
   // Validate status transition
   const validTransitions: Record<ParcelStatus, ParcelStatus[]> = {
-    [ParcelStatus.REQUESTED]: [ParcelStatus.APPROVED, ParcelStatus.CANCELED],
-    [ParcelStatus.APPROVED]: [ParcelStatus.DISPATCHED, ParcelStatus.HELD],
-    [ParcelStatus.DISPATCHED]: [ParcelStatus.DELIVERED, ParcelStatus.HELD],
-    [ParcelStatus.HELD]: [ParcelStatus.DISPATCHED],
+    [ParcelStatus.REQUESTED]: [ParcelStatus.APPROVED],
+    [ParcelStatus.APPROVED]: [ParcelStatus.DISPATCHED],
+    [ParcelStatus.DISPATCHED]: [ParcelStatus.IN_TRANSIT],
+    [ParcelStatus.IN_TRANSIT]: [ParcelStatus.DELIVERED],
     [ParcelStatus.DELIVERED]: [],
+
+    // Explicitly adding the ones you want to skip
     [ParcelStatus.CANCELED]: [],
-    [ParcelStatus.IN_TRANSIT]: [ParcelStatus.DELIVERED, ParcelStatus.HELD],
-    [ParcelStatus.RETURNED]: [],
+    [ParcelStatus.BLOCKED]: [],
+    [ParcelStatus.UNBLOCKED]: [],
   };
 
   if (!validTransitions[parcel.status]?.includes(status)) {
@@ -88,9 +116,6 @@ const updateStatus = async (
   parcel.status = status;
   parcel.statusLogs.push(statusLog);
 
-  if (status === ParcelStatus.CANCELED) {
-    parcel.isCanceled = true;
-  }
   await parcel.save();
   // Populate again if necessary before return
   await parcel.populate("senderId", "name email");
@@ -141,12 +166,6 @@ const cancelParcel = async (
 
   parcel.status = ParcelStatus.CANCELED;
   parcel.isCanceled = true;
-  parcel.statusLogs.push({
-    status: ParcelStatus.CANCELED,
-    updatedBy: senderId.toString(),
-    timestamp: new Date(),
-    note: "Parcel canceled by sender",
-  });
 
   await parcel.save();
   await parcel.populate("senderId", "name email");
@@ -172,13 +191,21 @@ const confirmDelivery = async (
     );
   }
 
+  // If already delivered
+  if (parcel.status === ParcelStatus.DELIVERED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Parcel already delivered or marked as delivered by admin"
+    );
+  }
+
   // Only allow confirmation if status is DISPATCHED or IN_TRANSIT
   if (
     ![ParcelStatus.DISPATCHED, ParcelStatus.IN_TRANSIT].includes(parcel.status)
   ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      "Parcel not in deliverable state"
+      "Parcel not in a deliverable state"
     );
   }
 
@@ -208,23 +235,33 @@ const blockParcel = async (
   const parcel = await Parcel.findById(parcelId);
   if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
 
-  parcel.isBlocked = block;
+  if (block) {
+    // Set status to BLOCKED and mark as blocked
+    parcel.status = ParcelStatus.BLOCKED;
+    parcel.isBlocked = true;
 
-  parcel.statusLogs.push({
-    status: block ? ParcelStatus.HELD : parcel.status, // or a special BLOCKED status if defined
-    updatedBy: adminId.toString(),
-    timestamp: new Date(),
-    note: block
-      ? `Parcel blocked by admin. ${note ?? ""}`
-      : `Parcel unblocked by admin.`,
-  });
+    // ❌ Do NOT push status log on block (per your request)
+  } else {
+    // Unblock: restore last valid status (not BLOCKED or CANCELED)
+    for (let i = parcel.statusLogs.length - 1; i >= 0; i--) {
+      const logStatus = parcel.statusLogs[i].status;
+      if (
+        logStatus !== ParcelStatus.BLOCKED &&
+        logStatus !== ParcelStatus.CANCELED
+      ) {
+        parcel.status = logStatus;
+        break;
+      }
+    }
+
+    parcel.isBlocked = false;
+  }
 
   await parcel.save();
   await parcel.populate("senderId", "name email");
   await parcel.populate("receiverId", "name email");
 
-  const parcelObj = parcel.toObject({ depopulate: true }) as unknown as IParcel;
-  return parcelObj;
+  return parcel.toObject({ depopulate: true }) as unknown as IParcel;
 };
 
 // Get incoming (active) parcels for receiver

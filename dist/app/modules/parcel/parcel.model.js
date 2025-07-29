@@ -48,7 +48,6 @@ const parcelSchema = new mongoose_1.default.Schema({
     versionKey: false,
 });
 // Indexes for optimization
-parcelSchema.index({ trackingId: 1 });
 parcelSchema.index({ senderId: 1, status: 1 });
 parcelSchema.index({ receiverId: 1, status: 1 });
 exports.Parcel = mongoose_1.default.model("parcel", parcelSchema);

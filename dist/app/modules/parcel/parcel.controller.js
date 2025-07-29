@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blockParcel = exports.cancelParcel = exports.confirmDelivery = exports.getMyParcels = exports.updateStatus = exports.createParcel = void 0;
+exports.getAllParcels = exports.getDeliveryHistory = exports.getIncomingParcels = exports.blockParcel = exports.cancelParcel = exports.confirmDelivery = exports.getSenderParcels = exports.updateStatus = exports.createParcel = void 0;
 const parcel_service_1 = require("./parcel.service");
 const sendResponse_1 = require("../../../utils/sendResponse");
 const http_status_1 = __importDefault(require("http-status"));
@@ -47,20 +47,19 @@ const updateStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
     });
 }));
 exports.updateStatus = updateStatus;
-// Get user's parcels
-const getMyParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-    const role = (_b = req.user) === null || _b === void 0 ? void 0 : _b.role; // 'sender' or 'receiver'
-    const parcels = yield parcel_service_1.parcelService.getUserParcels(userId, role);
+// Get senders's parcels
+const getSenderParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const senderId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    const parcels = yield parcel_service_1.parcelService.getSenderParcels(senderId);
     (0, sendResponse_1.sendResponse)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: "Parcels retrieved successfully",
+        message: "Sender parcels retrieved successfully",
         data: parcels,
     });
 }));
-exports.getMyParcels = getMyParcels;
+exports.getSenderParcels = getSenderParcels;
 const cancelParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const parcelId = req.params.parcelId;
@@ -115,3 +114,39 @@ const blockParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
     });
 }));
 exports.blockParcel = blockParcel;
+// Get incoming parcels for receiver
+const getIncomingParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const receiverId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    const parcels = yield parcel_service_1.parcelService.getIncomingParcels(receiverId);
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Incoming parcels retrieved successfully",
+        data: parcels,
+    });
+}));
+exports.getIncomingParcels = getIncomingParcels;
+// Get delivery history for receiver
+const getDeliveryHistory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const receiverId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    const parcels = yield parcel_service_1.parcelService.getDeliveryHistory(receiverId);
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Delivery history retrieved successfully",
+        data: parcels,
+    });
+}));
+exports.getDeliveryHistory = getDeliveryHistory;
+const getAllParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const parcels = yield parcel_service_1.parcelService.getAllParcels();
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "All parcels retrieved successfully",
+        data: parcels,
+    });
+}));
+exports.getAllParcels = getAllParcels;

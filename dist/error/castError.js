@@ -1,17 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleCastValidationError = void 0;
-const env_1 = require("../app/config/env");
-const handleCastValidationError = (error) => {
-    const statusCode = 400;
-    const message = "Invalid ID";
-    const errorMessage = `${error.value} is not a valid ID!`;
+exports.handleCastError = void 0;
+const handleCastError = (err) => {
     return {
-        statusCode,
-        message,
-        errorMessage,
-        errorDetails: error,
-        stack: env_1.envVars.NODE_ENV === "development" ? error.stack : undefined,
+        statusCode: 400,
+        message: "Invalid MongoDB ObjectID. Please provide a valid id",
     };
 };
-exports.handleCastValidationError = handleCastValidationError;
+exports.handleCastError = handleCastError;

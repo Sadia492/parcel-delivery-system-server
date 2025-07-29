@@ -5,7 +5,7 @@ const auth_controller_1 = require("./auth.controller");
 const auth_1 = require("../../../middleware/auth");
 const user_interface_1 = require("../user/user.interface");
 const authRouter = (0, express_1.Router)();
-authRouter.post("/change-password", (0, auth_1.auth)(Object.values(user_interface_1.Role)), auth_controller_1.authController.changePassword);
+authRouter.post("/change-password", (0, auth_1.auth)([user_interface_1.Role.SENDER, user_interface_1.Role.RECEIVER, user_interface_1.Role.ADMIN]), auth_controller_1.authController.changePassword);
 authRouter.post("/reset-password", auth_controller_1.authController.resetPassword);
 authRouter.post("/logout", auth_controller_1.authController.logout);
 exports.default = authRouter;
