@@ -44,20 +44,19 @@ const updateStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// Get user's parcels
-const getMyParcels = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?._id;
-  const role = req.user?.role; // 'sender' or 'receiver'
-
-  const parcels = await parcelService.getUserParcels(userId, role);
+// Get senders's parcels
+const getSenderParcels = catchAsync(async (req: Request, res: Response) => {
+  const senderId = req.user?._id;
+  const parcels = await parcelService.getSenderParcels(senderId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Parcels retrieved successfully",
+    message: "Sender parcels retrieved successfully",
     data: parcels,
   });
 });
+
 const cancelParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.parcelId;
   const senderId = req.user?._id;
@@ -132,12 +131,50 @@ const blockParcel = catchAsync(async (req: Request, res: Response) => {
     data: parcel,
   });
 });
+// Get incoming parcels for receiver
+const getIncomingParcels = catchAsync(async (req: Request, res: Response) => {
+  const receiverId = req.user?._id;
+  const parcels = await parcelService.getIncomingParcels(receiverId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Incoming parcels retrieved successfully",
+    data: parcels,
+  });
+});
+
+// Get delivery history for receiver
+const getDeliveryHistory = catchAsync(async (req: Request, res: Response) => {
+  const receiverId = req.user?._id;
+  const parcels = await parcelService.getDeliveryHistory(receiverId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Delivery history retrieved successfully",
+    data: parcels,
+  });
+});
+const getAllParcels = catchAsync(async (req: Request, res: Response) => {
+  const parcels = await parcelService.getAllParcels();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All parcels retrieved successfully",
+    data: parcels,
+  });
+});
 
 export {
   createParcel,
   updateStatus,
-  getMyParcels,
+  getSenderParcels,
   confirmDelivery,
   cancelParcel,
   blockParcel,
+  getIncomingParcels,
+  getDeliveryHistory,
+  getAllParcels,
 };

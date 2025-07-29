@@ -29,8 +29,8 @@ userRoute.post(
 
 userRoute.post("/refresh-token", refreshToken);
 
-userRoute.get("/", auth([Role.ADMIN, Role.SENDER]), getUsers);
-userRoute.get("/:id", auth, getSingleUser);
+userRoute.get("/", auth([Role.ADMIN]), getUsers);
+userRoute.get("/:id", getSingleUser);
 userRoute.patch("/block/:id", auth([Role.ADMIN]), blockUser);
 userRoute.patch("/unblock/:id", auth([Role.ADMIN]), unblockUser);
 export default userRoute;

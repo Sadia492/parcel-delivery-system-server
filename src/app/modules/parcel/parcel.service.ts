@@ -101,17 +101,13 @@ const updateStatus = async (
 };
 
 // Get parcels for a user (sender/receiver)
-const getUserParcels = async (
-  userId: Types.ObjectId,
-  role: "sender" | "receiver"
+const getSenderParcels = async (
+  senderId: Types.ObjectId
 ): Promise<IParcel[]> => {
-  const query =
-    role === "sender" ? { senderId: userId } : { receiverId: userId };
-
-  const parcels = await Parcel.find(query)
+  const parcels = await Parcel.find({ senderId })
     .sort({ createdAt: -1 })
-    .populate("senderId", "name email") // populate senderId with name and email only
-    .populate("receiverId", "name email") // populate receiverId similarly
+    .populate("senderId", "name email")
+    .populate("receiverId", "name email")
     .lean();
 
   return parcels as IParcel[];
@@ -231,11 +227,56 @@ const blockParcel = async (
   return parcelObj;
 };
 
+// Get incoming (active) parcels for receiver
+const getIncomingParcels = async (
+  receiverId: Types.ObjectId
+): Promise<IParcel[]> => {
+  const parcels = await Parcel.find({
+    receiverId,
+    status: { $nin: [ParcelStatus.DELIVERED, ParcelStatus.CANCELED] },
+  })
+    .sort({ createdAt: -1 })
+    .populate("senderId", "name email")
+    .populate("receiverId", "name email")
+    .lean();
+
+  return parcels as IParcel[];
+};
+
+// Get delivery history for receiver
+const getDeliveryHistory = async (
+  receiverId: Types.ObjectId
+): Promise<IParcel[]> => {
+  const parcels = await Parcel.find({
+    receiverId,
+    status: ParcelStatus.DELIVERED,
+  })
+    .sort({ createdAt: -1 })
+    .populate("senderId", "name email")
+    .populate("receiverId", "name email")
+    .lean();
+
+  return parcels as IParcel[];
+};
+
+const getAllParcels = async () => {
+  const parcels = await Parcel.find({})
+    .sort({ createdAt: -1 })
+    .populate("senderId", "name email")
+    .populate("receiverId", "name email")
+    .lean();
+
+  return parcels;
+};
+
 export const parcelService = {
   createParcel,
   updateStatus,
-  getUserParcels,
+  getSenderParcels,
   cancelParcel,
   confirmDelivery,
   blockParcel,
+  getDeliveryHistory,
+  getIncomingParcels,
+  getAllParcels,
 };

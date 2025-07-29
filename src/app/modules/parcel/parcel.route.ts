@@ -2,10 +2,13 @@ import { Router } from "express";
 import {
   createParcel,
   updateStatus,
-  getMyParcels,
   cancelParcel,
   confirmDelivery,
   blockParcel,
+  getSenderParcels,
+  getAllParcels,
+  getDeliveryHistory,
+  getIncomingParcels,
 } from "./parcel.controller";
 import { auth } from "../../../middleware/auth";
 import { Role } from "../user/user.interface";
@@ -14,10 +17,14 @@ import { parcelZodSchema } from "./parcel.validate";
 
 const parcelRoute = Router();
 
+parcelRoute.get("/", auth([Role.ADMIN]), getAllParcels);
+parcelRoute.get("/incoming", auth([Role.RECEIVER]), getIncomingParcels);
+parcelRoute.get("/history", auth([Role.RECEIVER]), getDeliveryHistory);
+
 // Sender creates parcel
 parcelRoute.post(
   "/",
-  auth([Role.SENDER, Role.ADMIN]),
+  auth([Role.SENDER]),
   validateRequest(parcelZodSchema.createParcelSchema),
   createParcel
 );
@@ -31,7 +38,7 @@ parcelRoute.patch(
 );
 
 // Sender or receiver gets their parcels
-parcelRoute.get("/me", auth([Role.SENDER, Role.RECEIVER]), getMyParcels);
+parcelRoute.get("/me", auth([Role.SENDER, Role.RECEIVER]), getSenderParcels);
 
 // Sender cancels their parcel (only sender allowed)
 parcelRoute.patch("/cancel/:parcelId", auth([Role.SENDER]), cancelParcel);
