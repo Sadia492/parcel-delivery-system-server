@@ -4,8 +4,9 @@ import { userService } from "./user.service";
 import httpStatus from "http-status";
 import { envVars } from "../../config/env";
 import { sendResponse } from "../../../utils/sendResponse";
+import { catchAsync } from "../../../utils/catchAsync";
 
-const registerUser = async (req: Request, res: Response) => {
+const registerUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
 
   const data = await userService.registerUser(payload);
@@ -16,9 +17,9 @@ const registerUser = async (req: Request, res: Response) => {
     message: "User Registered Successfully",
     data,
   });
-};
+});
 
-const getSingleUser = async (req: Request, res: Response) => {
+const getSingleUser = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.getSingleUser(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -26,9 +27,9 @@ const getSingleUser = async (req: Request, res: Response) => {
     message: "User fetched successfully",
     data: result,
   });
-};
+});
 
-const blockUser = async (req: Request, res: Response) => {
+const blockUser = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.blockUser(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -36,9 +37,9 @@ const blockUser = async (req: Request, res: Response) => {
     message: "User blocked successfully",
     data: result,
   });
-};
+});
 
-const unblockUser = async (req: Request, res: Response) => {
+const unblockUser = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.unblockUser(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -46,9 +47,9 @@ const unblockUser = async (req: Request, res: Response) => {
     message: "User unblocked successfully",
     data: result,
   });
-};
+});
 
-const loginUser = async (req: Request, res: Response) => {
+const loginUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
 
   const data = await userService.loginUser(payload);
@@ -70,9 +71,9 @@ const loginUser = async (req: Request, res: Response) => {
     message: "User Login Successfully",
     data,
   });
-};
+});
 
-const refreshToken = async (req: Request, res: Response) => {
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
 
   const data = await userService.refreshToken(refreshToken);
@@ -83,9 +84,9 @@ const refreshToken = async (req: Request, res: Response) => {
     message: "User Registered Successfully",
     data,
   });
-};
+});
 
-const getUsers = async (req: Request, res: Response) => {
+const getUsers = catchAsync(async (req: Request, res: Response) => {
   const data = await User.find();
 
   sendResponse(res, {
@@ -94,7 +95,7 @@ const getUsers = async (req: Request, res: Response) => {
     message: "User retrieved Successfully",
     data,
   });
-};
+});
 
 export {
   registerUser,

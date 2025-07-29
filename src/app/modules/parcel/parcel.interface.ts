@@ -13,20 +13,25 @@ export enum ParcelStatus {
 
 export interface IStatusLog {
   status: ParcelStatus;
+  timestamp: Date; // when this status update was made
   location?: string;
   note?: string;
-  updatedBy: "Admin" | "System"; // admin or system
+  updatedBy: string; // can be admin, system, or user ID
 }
 
 export interface IParcel {
-  trackingId: string;
+  trackingId: string; // TRK-YYYYMMDD-XXXX
   senderId: Types.ObjectId;
   receiverId: Types.ObjectId;
-  weight: number;
-  address: string;
-  fee: number;
+  fromAddress: string;
+  toAddress: string;
+  parcelType: string;
+  weight: number; // in kg
+  fee: number; // calculated
+  deliveryDate?: Date; // optional: ETA or actual
   status: ParcelStatus;
   statusLogs: IStatusLog[];
+  note?: string; // optional sender note
   isBlocked?: boolean;
   isCanceled?: boolean;
 }
