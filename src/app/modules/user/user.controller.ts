@@ -1,10 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import User from "./user.model";
 import { userService } from "./user.service";
 import httpStatus from "http-status";
 import { envVars } from "../../config/env";
 import { sendResponse } from "../../../utils/sendResponse";
 import { catchAsync } from "../../../utils/catchAsync";
+import { JwtPayload } from "jsonwebtoken";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
@@ -54,17 +55,34 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
   const data = await userService.loginUser(payload);
 
+  // For production: use 'none' and secure: true
+  const isProduction = envVars.NODE_ENV === "production";
+
   res.cookie("accessToken", data.accessToken, {
-    secure: envVars.NODE_ENV !== "development",
+    secure: isProduction, // true in production, false in development
     httpOnly: true,
-    sameSite: "none",
+    sameSite: isProduction ? "none" : "lax", // Critical fix!
+    maxAge: 15 * 60 * 1000, // 15 minutes for access token
   });
 
   res.cookie("refreshToken", data.refreshToken, {
-    secure: envVars.NODE_ENV !== "development",
+    secure: isProduction, // true in production, false in development
     httpOnly: true,
-    sameSite: "none",
+    sameSite: isProduction ? "none" : "lax", // Critical fix!
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days for refresh token
   });
+
+  // res.cookie("accessToken", data.accessToken, {
+  //   secure: envVars.NODE_ENV !== "development",
+  //   httpOnly: true,
+  //   sameSite: "none",
+  // });
+
+  // res.cookie("refreshToken", data.refreshToken, {
+  //   secure: envVars.NODE_ENV !== "development",
+  //   httpOnly: true,
+  //   sameSite: "none",
+  // });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -97,6 +115,28 @@ const getUsers = catchAsync(async (req: Request, res: Response) => {
     data,
   });
 });
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const decodedToken = req.user as JwtPayload;
+  const result = await userService.getMe(decodedToken._id);
+  console.log(result);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Your profile Retrieved Successfully",
+    data: result.data,
+  });
+});
+// src/modules/user/user.controller.ts
+const getAllReceivers = catchAsync(async (req: Request, res: Response) => {
+  const receivers = await userService.getAllReceivers();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Receivers fetched successfully",
+    data: receivers,
+  });
+});
 
 export {
   registerUser,
@@ -106,4 +146,6 @@ export {
   getSingleUser,
   blockUser,
   unblockUser,
+  getMe,
+  getAllReceivers,
 };

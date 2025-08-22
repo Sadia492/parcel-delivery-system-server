@@ -11,8 +11,10 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: envVars.FRONTEND_URL,
-    credentials: true,
+    origin: [envVars.FRONTEND_URL, "http://localhost:5173"],
+    credentials: true, // This is crucial!
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
 app.use(cookieParser());
@@ -133,11 +135,11 @@ app.get("/", (req: Request, res: Response) => {
             <h2>👤 User Management</h2>
             <div class="route">
               <span>Register User</span>
-              <span class="badge">POST /api/users/</span>
+              <span class="badge">POST /api/user/</span>
             </div>
             <div class="route">
               <span>Login User</span>
-              <span class="badge">POST /api/users/login</span>
+              <span class="badge">POST /api/user/login</span>
             </div>
             <div class="route">
               <span>Refresh Token</span>

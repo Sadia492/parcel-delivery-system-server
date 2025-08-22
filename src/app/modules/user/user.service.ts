@@ -91,6 +91,20 @@ const unblockUser = async (id: string): Promise<IUser | null> => {
     { new: true }
   );
 };
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  return {
+    data: user,
+  };
+};
+
+const getAllReceivers = async () => {
+  // Fetch users where role is RECEIVER
+  return await User.find({
+    role: "RECEIVER",
+    isBlocked: { $ne: "BLOCKED" },
+  }).select("_id name email");
+};
 
 export const userService = {
   registerUser,
@@ -99,4 +113,6 @@ export const userService = {
   getSingleUser,
   blockUser,
   unblockUser,
+  getMe,
+  getAllReceivers,
 };

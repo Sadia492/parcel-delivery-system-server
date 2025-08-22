@@ -41,7 +41,7 @@ JWT_ACCESS_SECRET=your_access_secret_here
 JWT_REFRESH_SECRET=your_refresh_secret_here
 
 # Token Expiry Times
-JWT_ACCESS_EXPIRES=2h
+JWT_ACCESS_EXPIRES=5h
 JWT_REFRESH_EXPIRES=365d
 
 # Bcrypt Salt

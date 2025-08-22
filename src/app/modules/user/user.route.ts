@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
   blockUser,
+  getAllReceivers,
+  getMe,
   getSingleUser,
   getUsers,
   loginUser,
@@ -28,8 +30,9 @@ userRoute.post(
 );
 
 userRoute.post("/refresh-token", refreshToken);
-
+userRoute.get("/receivers", auth([Role.SENDER]), getAllReceivers);
 userRoute.get("/", auth([Role.ADMIN]), getUsers);
+userRoute.get("/me", auth([Role.ADMIN, Role.RECEIVER, Role.SENDER]), getMe);
 userRoute.get("/:id", getSingleUser);
 userRoute.patch("/block/:id", auth([Role.ADMIN]), blockUser);
 userRoute.patch("/unblock/:id", auth([Role.ADMIN]), unblockUser);
