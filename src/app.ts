@@ -11,7 +11,11 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: [envVars.FRONTEND_URL, "http://localhost:5173"],
+    origin: [
+      envVars.FRONTEND_URL,
+      "http://localhost:5173",
+      "https://parcel-delivery-system-client.vercel.app",
+    ],
     credentials: true, // This is crucial!
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
