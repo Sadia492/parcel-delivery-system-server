@@ -19,6 +19,7 @@ import { checkUserBlocked } from "../../../middleware/checkUserBlocked";
 const parcelRoute = Router();
 
 parcelRoute.get("/", auth([Role.ADMIN]), getAllParcels);
+parcelRoute.get("/track", getAllParcels);
 parcelRoute.get(
   "/incoming",
   auth([Role.RECEIVER]),
