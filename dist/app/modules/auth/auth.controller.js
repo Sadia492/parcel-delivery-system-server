@@ -13,6 +13,7 @@ exports.authController = void 0;
 const auth_service_1 = require("./auth.service");
 const catchAsync_1 = require("../../../utils/catchAsync");
 const sendResponse_1 = require("../../../utils/sendResponse");
+const env_1 = require("../../config/env");
 const changePassword = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.user;
     const { newPassword, oldPassword } = req.body || {};
@@ -35,8 +36,16 @@ const resetPassword = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
     });
 }));
 const logout = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: env_1.envVars.NODE_ENV === "production",
+        sameSite: "none",
+    });
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: env_1.envVars.NODE_ENV === "production",
+        sameSite: "none",
+    });
     (0, sendResponse_1.sendResponse)(res, {
         statusCode: 200,
         success: true,

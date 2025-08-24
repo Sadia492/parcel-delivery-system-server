@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { authService } from "./auth.service";
 import { catchAsync } from "../../../utils/catchAsync";
 import { sendResponse } from "../../../utils/sendResponse";
+import { envVars } from "../../config/env";
 
 const changePassword = catchAsync(async (req: Request, res: Response) => {
   const { email } = req.user;
@@ -36,9 +37,16 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const logout = catchAsync(async (req: Request, res: Response) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: envVars.NODE_ENV === "production",
+    sameSite: "none",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: envVars.NODE_ENV === "production",
+    sameSite: "none",
+  });
   sendResponse(res, {
     statusCode: 200,
     success: true,
