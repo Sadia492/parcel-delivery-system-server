@@ -65,6 +65,7 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!checkPassword)
         throw new AppError_1.default(403, "Password not matched");
     const jwtPayload = {
+        _id: isUserExist._id.toString(), // ✅ add user id
         email: payload.email,
         role: isUserExist.role,
     };
@@ -96,6 +97,19 @@ const blockUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
 const unblockUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return yield user_model_1.default.findByIdAndUpdate(id, { isBlocked: "UNBLOCKED" }, { new: true });
 });
+const getMe = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.default.findById(userId).select("-password");
+    return {
+        data: user,
+    };
+});
+const getAllReceivers = () => __awaiter(void 0, void 0, void 0, function* () {
+    // Fetch users where role is RECEIVER
+    return yield user_model_1.default.find({
+        role: "RECEIVER",
+        isBlocked: { $ne: "BLOCKED" },
+    }).select("_id name email");
+});
 exports.userService = {
     registerUser,
     loginUser,
@@ -103,4 +117,6 @@ exports.userService = {
     getSingleUser,
     blockUser,
     unblockUser,
+    getMe,
+    getAllReceivers,
 };

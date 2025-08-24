@@ -12,10 +12,14 @@ const notFoundRoute_1 = require("./middleware/notFoundRoute");
 const env_1 = require("./app/config/env");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.set("trust proxy", 1);
+app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: env_1.envVars.FRONTEND_URL,
+    origin: [env_1.envVars.FRONTEND_URL, "http://localhost:5173"],
     credentials: true,
 }));
+// Handle preflight requests
+// app.options("*", cors());s
 app.use((0, cookie_parser_1.default)());
 app.use("/api", routes_1.default);
 // Landing page with your Parcel Management API info and routes
@@ -132,11 +136,11 @@ app.get("/", (req, res) => {
             <h2>👤 User Management</h2>
             <div class="route">
               <span>Register User</span>
-              <span class="badge">POST /api/users/</span>
+              <span class="badge">POST /api/user/</span>
             </div>
             <div class="route">
               <span>Login User</span>
-              <span class="badge">POST /api/users/login</span>
+              <span class="badge">POST /api/user/login</span>
             </div>
             <div class="route">
               <span>Refresh Token</span>

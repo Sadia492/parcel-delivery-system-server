@@ -27,6 +27,7 @@ const loginUser = async (payload: IUser) => {
   if (!checkPassword) throw new AppError(403, "Password not matched");
 
   const jwtPayload = {
+    _id: isUserExist._id.toString(), // ✅ add user id
     email: payload.email,
     role: isUserExist.role,
   };

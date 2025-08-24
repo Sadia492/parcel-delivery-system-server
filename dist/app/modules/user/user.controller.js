@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unblockUser = exports.blockUser = exports.getSingleUser = exports.refreshToken = exports.getUsers = exports.loginUser = exports.registerUser = void 0;
+exports.getAllReceivers = exports.getMe = exports.unblockUser = exports.blockUser = exports.getSingleUser = exports.refreshToken = exports.getUsers = exports.loginUser = exports.registerUser = void 0;
 const user_model_1 = __importDefault(require("./user.model"));
 const user_service_1 = require("./user.service");
 const http_status_1 = __importDefault(require("http-status"));
@@ -63,16 +63,29 @@ exports.unblockUser = unblockUser;
 const loginUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const payload = req.body;
     const data = yield user_service_1.userService.loginUser(payload);
+    // For production: use 'none' and secure: true
+    const isProduction = env_1.envVars.NODE_ENV === "production";
+    // Set cookies with proper domain for cross-domain usage
     res.cookie("accessToken", data.accessToken, {
-        secure: env_1.envVars.NODE_ENV !== "development",
         httpOnly: true,
+        secure: env_1.envVars.NODE_ENV === "production",
         sameSite: "none",
     });
     res.cookie("refreshToken", data.refreshToken, {
-        secure: env_1.envVars.NODE_ENV !== "development",
         httpOnly: true,
+        secure: env_1.envVars.NODE_ENV === "production",
         sameSite: "none",
     });
+    // res.cookie("accessToken", data.accessToken, {
+    //   secure: envVars.NODE_ENV !== "development",
+    //   httpOnly: true,
+    //   sameSite: "none",
+    // });
+    // res.cookie("refreshToken", data.refreshToken, {
+    //   secure: envVars.NODE_ENV !== "development",
+    //   httpOnly: true,
+    //   sameSite: "none",
+    // });
     (0, sendResponse_1.sendResponse)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -102,3 +115,24 @@ const getUsers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, vo
     });
 }));
 exports.getUsers = getUsers;
+const getMe = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user; // already a User object
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Your profile Retrieved Successfully",
+        data: user,
+    });
+}));
+exports.getMe = getMe;
+// src/modules/user/user.controller.ts
+const getAllReceivers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const receivers = yield user_service_1.userService.getAllReceivers();
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Receivers fetched successfully",
+        data: receivers,
+    });
+}));
+exports.getAllReceivers = getAllReceivers;

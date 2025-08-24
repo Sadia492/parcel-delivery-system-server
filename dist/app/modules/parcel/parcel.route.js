@@ -9,6 +9,7 @@ const parcel_validate_1 = require("./parcel.validate");
 const checkUserBlocked_1 = require("../../../middleware/checkUserBlocked");
 const parcelRoute = (0, express_1.Router)();
 parcelRoute.get("/", (0, auth_1.auth)([user_interface_1.Role.ADMIN]), parcel_controller_1.getAllParcels);
+parcelRoute.get("/track", parcel_controller_1.getAllParcels);
 parcelRoute.get("/incoming", (0, auth_1.auth)([user_interface_1.Role.RECEIVER]), checkUserBlocked_1.checkUserBlocked, parcel_controller_1.getIncomingParcels);
 parcelRoute.get("/history", (0, auth_1.auth)([user_interface_1.Role.RECEIVER]), checkUserBlocked_1.checkUserBlocked, parcel_controller_1.getDeliveryHistory);
 // Sender creates parcel

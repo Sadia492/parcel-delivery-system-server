@@ -58,18 +58,17 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   // For production: use 'none' and secure: true
   const isProduction = envVars.NODE_ENV === "production";
 
+  // Set cookies with proper domain for cross-domain usage
   res.cookie("accessToken", data.accessToken, {
-    secure: isProduction, // true in production, false in development
     httpOnly: true,
-    sameSite: isProduction ? "none" : "lax", // Critical fix!
-    maxAge: 15 * 60 * 1000, // 15 minutes for access token
+    secure: envVars.NODE_ENV === "production",
+    sameSite: "none",
   });
 
   res.cookie("refreshToken", data.refreshToken, {
-    secure: isProduction, // true in production, false in development
     httpOnly: true,
-    sameSite: isProduction ? "none" : "lax", // Critical fix!
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days for refresh token
+    secure: envVars.NODE_ENV === "production",
+    sameSite: "none",
   });
 
   // res.cookie("accessToken", data.accessToken, {
@@ -116,16 +115,15 @@ const getUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getMe = catchAsync(async (req: Request, res: Response) => {
-  const decodedToken = req.user as JwtPayload;
-  const result = await userService.getMe(decodedToken._id);
-  console.log(result);
+  const user = req.user; // already a User object
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.CREATED,
+    statusCode: httpStatus.OK,
     message: "Your profile Retrieved Successfully",
-    data: result.data,
+    data: user,
   });
 });
+
 // src/modules/user/user.controller.ts
 const getAllReceivers = catchAsync(async (req: Request, res: Response) => {
   const receivers = await userService.getAllReceivers();

@@ -9,18 +9,18 @@ import { envVars } from "./app/config/env";
 const app = express();
 
 app.use(express.json());
+app.set("trust proxy", 1);
+app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: [
-      envVars.FRONTEND_URL,
-      "http://localhost:5173",
-      "https://parcel-delivery-system-client.vercel.app",
-    ],
-    credentials: true, // This is crucial!
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    origin: [envVars.FRONTEND_URL, "http://localhost:5173"],
+    credentials: true,
   })
 );
+
+// Handle preflight requests
+// app.options("*", cors());s
+
 app.use(cookieParser());
 
 app.use("/api", routes);
