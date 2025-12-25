@@ -13,7 +13,11 @@ app.set("trust proxy", 1);
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: [envVars.FRONTEND_URL, "http://localhost:5173"],
+    origin: [
+      envVars.FRONTEND_URL,
+      "http://localhost:5173",
+      "https://parcel-delivery-system-client.vercel.app",
+    ],
     credentials: true,
   })
 );
