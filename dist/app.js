@@ -15,11 +15,7 @@ app.use(express_1.default.json());
 app.set("trust proxy", 1);
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: [
-        env_1.envVars.FRONTEND_URL,
-        "http://localhost:5173",
-        "https://parcel-delivery-system-client.vercel.app",
-    ],
+    origin: [env_1.envVars.FRONTEND_URL, "http://localhost:5173"],
     credentials: true,
 }));
 // Handle preflight requests
