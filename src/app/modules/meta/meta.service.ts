@@ -184,6 +184,9 @@ const getAdminMetaData = async (): Promise<DashboardStats> => {
     blockedUsers,
     activeUsers,
 
+    pendingRevenue,
+    collectedRevenue: totalRevenue,
+
     recentParcels,
     recentUsers,
   };
@@ -280,6 +283,9 @@ const getSenderMetaData = async (user: IUser): Promise<DashboardStats> => {
     deliveredParcels,
     canceledParcels,
 
+    pendingRevenue,
+    collectedRevenue: totalRevenue,
+
     recentParcels,
     upcomingDeliveries,
   };
@@ -359,6 +365,7 @@ const getReceiverMetaData = async (user: IUser): Promise<DashboardStats> => {
     receiverParcels,
     pendingDeliveries,
     completedDeliveries,
+    totalRevenue: totalPaid,
     recentParcels,
     upcomingDeliveries,
   };
