@@ -111,6 +111,8 @@ const getAdminMetaData = () => __awaiter(void 0, void 0, void 0, function* () {
         totalReceivers,
         blockedUsers,
         activeUsers,
+        pendingRevenue,
+        collectedRevenue: totalRevenue,
         recentParcels,
         recentUsers,
     };
@@ -186,6 +188,8 @@ const getSenderMetaData = (user) => __awaiter(void 0, void 0, void 0, function* 
         dispatchedParcels,
         deliveredParcels,
         canceledParcels,
+        pendingRevenue,
+        collectedRevenue: totalRevenue,
         recentParcels,
         upcomingDeliveries,
     };
@@ -251,6 +255,7 @@ const getReceiverMetaData = (user) => __awaiter(void 0, void 0, void 0, function
         receiverParcels,
         pendingDeliveries,
         completedDeliveries,
+        totalRevenue: totalPaid,
         recentParcels,
         upcomingDeliveries,
     };
